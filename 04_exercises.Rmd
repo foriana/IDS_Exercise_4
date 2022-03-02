@@ -22,7 +22,7 @@ library(openintro)     # for the abbr2state() function
 library(palmerpenguins)# for Palmer penguin data
 library(maps)          # for map data
 library(ggmap)         # for mapping points on maps
-library(gplots)        # for col2hex() function
+#library(gplots)        # for col2hex() function
 library(RColorBrewer)  # for color palettes
 library(sf)            # for working with spatial data
 library(leaflet)       # for highly customizable mapping
