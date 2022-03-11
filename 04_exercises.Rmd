@@ -130,7 +130,7 @@ mn_starbucks <- Starbucks %>%
 tc_map <- get_stamenmap(
   bbox = c(left = -93.2722, bottom = 44.9670, right = -93.1424, top = 44.9977),
   maptype = "terrain",
-  zoom = 2)
+  zoom = 13)
 
 ggmap(tc_map) + 
   geom_point(data = mn_starbucks,
