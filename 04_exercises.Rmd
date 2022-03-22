@@ -352,15 +352,23 @@ ggmap(w_dc) +
   
   10. Only 14.4% of the trips in our data are carried out by casual users. Create a plot that shows which area(s) have stations with a much higher percentage of departures by casual users. What patterns do you notice? Also plot this on top of a map. I think it will be more clear what the patterns are.
   
+  __The majority of casual users center around the most central part of Washington D.C., which makes sense because that area would be high density, as well as attract people who may be tourists/visiters.__
+  
 ```{r}
+
+casual_w_dc <- throwback_bike %>% 
+  filter(client == "Casual") %>% 
+  group_by(lat, long, sstation)
+
+casual_w_dc
+
 ggmap(w_dc) + 
-  geom_point(data = throwback_bike,
-             aes(x = long, y = lat, color = sum_station),
-             alpha = throwback_bike$client, 
-             size = .75) + 
+  geom_point(data = casual_w_dc,
+             aes(x = long, y = lat, size = casual_w_dc$sum_station),
+             alpha = 0.5) + 
   theme_map() + 
   labs(title = "Map of Washington DC's Bike Rental Stations", 
-       subtitle = "") +
+       subtitle = "Larger circles indicate higher usage from clients registered as casual") +
   theme(legend.background = element_blank(),
         legend.title = element_blank())
 
@@ -372,18 +380,25 @@ The following exercises will use the COVID-19 data from the NYT.
 
   11. Create a map that colors the states by the most recent cumulative number of COVID-19 cases (remember, these data report cumulative numbers so you don't need to compute that). Describe what you see. What is the problem with this map?
   
+  __It appears that California, Texas, Florida, and New York contain the most COVID-19 cases. The issue is that they also have higher populations in general. More accurate depictions of COVID-19 would be on a per capita of the population basis so we know the proportions within each state to accurately compare and contrast the cases. __
+  
   
 ```{r}
 states_map <- map_data("state")
+
+covid19_states <- covid19 %>% 
+  group_by(state) %>% 
+  summarise(cases = last(cases)) %>% 
+  mutate(state = str_to_lower(`state`))
 ```
   
 ```{r}
-covid19 %>% 
+covid19_states %>% 
   ggplot() +
   geom_map(map = states_map,
            aes(map_id = state,
-               fill = n)) +
-# expand_limits(x = states_map$long, y = states_map$lat) + 
+               fill = cases)) +
+  expand_limits(x = states_map$long, y = states_map$lat) + 
   labs(title = "COVID-19 Cases in the United States") + 
   theme_map() + 
   theme(legend.background = element_blank())
