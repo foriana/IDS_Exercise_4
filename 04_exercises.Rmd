@@ -443,12 +443,12 @@ These exercises use the datasets `MplsStops` and `MplsDemo` from the `carData` l
   
 ```{r}
 mpls_suspicious <- MplsStops %>% 
-  group_by(neighborhood, problem) %>% 
-  summarise(stoppage = n()) %>% #counts by type of problem 
-  summarise(stoppage_total = sum(stoppage), #all the stops totaled 
-            stoppage_prop = stoppage/stoppage_total,
-            problem = problem) %>% #to get all the variables to complete this problem
-  arrange(desc(stoppage_total))
+  group_by(neighborhood) %>% 
+    mutate(is_it_suss = ifelse(problem == "suspicious", TRUE, FALSE)) %>% 
+  summarise(stoppage = n(),
+            suspicious_stop = sum(is_it_suss),
+            prop_suspicious = suspicious_stop/stoppage) %>%
+  arrange(desc(prop_suspicious))
 
 mpls_suspicious
   
@@ -475,13 +475,32 @@ leaflet(data = MplsStops) %>%
   
   16. Save the folder from moodle called Minneapolis_Neighborhoods into your project/repository folder for this assignment. Make sure the folder is called Minneapolis_Neighborhoods. Use the code below to read in the data and make sure to **delete the `eval=FALSE`**. Although it looks like it only links to the .sph file, you need the entire folder of files to create the `mpls_nbhd` data set. These data contain information about the geometries of the Minneapolis neighborhoods. Using the `mpls_nbhd` dataset as the base file, join the `mpls_suspicious` and `MplsDemo` datasets to it by neighborhood (careful, they are named different things in the different files). Call this new dataset `mpls_all`.
 
-```{r, eval=FALSE}
+```{r}
 mpls_nbhd <- st_read("Minneapolis_Neighborhoods/Minneapolis_Neighborhoods.shp", quiet = TRUE)
+
+mpls_all <- mpls_nbhd %>% 
+  left_join(mpls_suspicious, 
+            by = c("BDNAME" = "neighborhood")) %>% 
+  left_join(MplsDemo,
+            by = c("BDNAME" = "neighborhood"))
+
+mpls_all
 ```
 
   17. Use `leaflet` to create a map from the `mpls_all` data  that colors the neighborhoods by `prop_suspicious`. Display the neighborhood name as you scroll over it. Describe what you observe in the map.
 
 ```{r}
+
+
+leaflet(data = mpls_all) %>% 
+  addTiles() %>% 
+  addCircleMarkers(lng = ~long,
+             lat = ~lat,
+             stroke = FALSE,
+             radius = 1,
+            fillColor = ~prop_suspicious,
+            label = ~BDNAME)
+  
 ```
   
   18. Use `leaflet` to create a map of your own choosing. Come up with a question you want to try to answer and use the map to help answer that question. Describe what your map shows. 
