@@ -217,7 +217,7 @@ __starbucks_with_2018_pop_est <- __
 
   7. Create a choropleth map that shows the number of Starbucks per 10,000 people on a map of the US. Use a new fill color, add points for all Starbucks in the US (except Hawaii and Alaska), add an informative title for the plot, and include a caption that says who created the plot (you!). Make a conclusion about what you observe.
   
-  __My conclusion __
+  __I see that Starbucks has the West Coast absolutely caffeine-dependent. All jokes aside, Washington, California, Oregon, Nevada, New Mexico, and Colorado are the highest Starbucks per capita states. I think Virginia is slightly lighter in the area due to Washington D.C.--politicans and NGO workers have to be functional. Same idea with Illinois in which Chicago and maybe Champaign-Urbana encourage the growth of Starbucks, but not enough to majorly impact the state's representation overall. While NYC probably is a coffee hub for Starbucks, the amount of people probably far outweigh most, if not all, other states to be higher in the density of Starbucks. __
 
 ```{r}
 states_map <- map_data("state")
@@ -229,9 +229,10 @@ starbucks_with_2018_pop_est %>%
                fill = starbucks_per_10000)) + 
   expand_limits(x = states_map$long, y = states_map$lat) +
   theme_map() +
-  theme(legend.background = element_blank(),
-        legend.text = element_blank()) +
-  labs(title = "The Amount of Starbucks in the United States per 10000 People" )
+  theme(legend.position = "none") +
+  labs(title = "The Amount of Starbucks in the United States per 10000 People" ,
+       subtitle = "Lighter shades of blue indicate a higher density of Starbucks",
+       caption = "Created by Felicia Peterson, part-time graph-ter")
 ```
 
 ### A few of your favorite things (`leaflet`)
@@ -260,11 +261,16 @@ map_fp <- felicia_faves %>%
   mutate(color = case_when(top_3 == TRUE ~ "red",
                            top_3 == FALSE ~ "blue"))
 
-leaflet(data = map_fp) %>% 
+pal <- colorFactor("viridis", domain = map_fp$color)
+
+leaflet(data = felicia_faves) %>% 
   addProviderTiles(providers$Stamen.Toner) %>% 
-  addCircles(color = map_fp$color,
+  addCircles(lng = ~long,
+             lat = ~lat,
+             color = ~top_3,
              label = ~place) %>% 
-  addLegend(pal = color,
+  addLegend(pal = pal,
+            values = ~top_3$place,
             opacity = 0.5, 
             title = NULL, 
             position = "bottomright")
@@ -279,7 +285,9 @@ leaflet(data = map_fp) %>%
   addCircles(
              color = map_fp$color,
              label = ~place) %>% 
-  addPolylines(color = col2hex("darkred"))
+  addPolylines(lng = ~long,
+               lat = ~lat, 
+               color = col2hex("darkred"))
 ```
   
   * If there are other variables you want to add that could enhance your plot, do that now.  
