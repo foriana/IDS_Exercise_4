@@ -412,9 +412,20 @@ covid_19_state_populations <- covid19_states %>%
   left_join(census_pop_est_2018,
             by = c("state" = "state"))
 
-covid_19_state_populations %>% 
-  mutate(covid_prop = cases/est_pop_2018)
+modified_covid19 <- covid_19_state_populations %>% 
+  mutate(covid_prop = cases/est_pop_2018)  
 
+modified_covid19 %>%
+  ggplot() +
+  geom_map(map = states_map,
+           aes(map_id = state,
+               fill = covid_prop)) +
+  expand_limits(x = states_map$long, y = states_map$lat) + 
+  labs(title = "COVID-19 Cases in the United States",
+       subtitle = "Lighter colors represent higher proportions of state population's COVID-19 cases") + 
+  theme_map() + 
+  theme(legend.background = element_blank(),
+        legend.title = element_blank()) 
 
 ```
   
@@ -431,11 +442,35 @@ These exercises use the datasets `MplsStops` and `MplsDemo` from the `carData` l
   14. Use the `MplsStops` dataset to find out how many stops there were for each neighborhood and the proportion of stops that were for a suspicious vehicle or person. Sort the results from most to least number of stops. Save this as a dataset called `mpls_suspicious` and display the table.  
   
 ```{r}
+mpls_suspicious <- MplsStops %>% 
+  group_by(neighborhood, problem) %>% 
+  summarise(stoppage = n()) %>% #counts by type of problem 
+  summarise(stoppage_total = sum(stoppage), #all the stops totaled 
+            stoppage_prop = stoppage/stoppage_total,
+            problem = problem) %>% #to get all the variables to complete this problem
+  arrange(desc(stoppage_total))
+
+mpls_suspicious
+  
+  
+  
 ```
 
   15. Use a `leaflet` map and the `MplsStops` dataset to display each of the stops on a map as a small point. Color the points differently depending on whether they were for suspicious vehicle/person or a traffic stop (the `problem` variable). HINTS: use `addCircleMarkers`, set `stroke = FAlSE`, use `colorFactor()` to create a palette.  
 
 ```{r}
+
+sus_pal <- colorFactor("magma",
+                       domain = MplsStops$problem)
+
+
+leaflet(data = MplsStops) %>% 
+  addTiles() %>% 
+  addCircleMarkers(lng = ~long,
+             lat = ~lat,
+             stroke = FALSE,
+             radius = 1,
+            fillColor = ~sus_pal(problem))
 ```
   
   16. Save the folder from moodle called Minneapolis_Neighborhoods into your project/repository folder for this assignment. Make sure the folder is called Minneapolis_Neighborhoods. Use the code below to read in the data and make sure to **delete the `eval=FALSE`**. Although it looks like it only links to the .sph file, you need the entire folder of files to create the `mpls_nbhd` data set. These data contain information about the geometries of the Minneapolis neighborhoods. Using the `mpls_nbhd` dataset as the base file, join the `mpls_suspicious` and `MplsDemo` datasets to it by neighborhood (careful, they are named different things in the different files). Call this new dataset `mpls_all`.
