@@ -433,6 +433,8 @@ modified_covid19 %>%
 
 ```{r}
 
+
+
 ```
   
 ## Minneapolis police stops
@@ -505,8 +507,29 @@ leaflet(data = mpls_all) %>%
 ```
   
   18. Use `leaflet` to create a map of your own choosing. Come up with a question you want to try to answer and use the map to help answer that question. Describe what your map shows. 
+  
+  __I wanted to compare this new map to the map made previously, in which we see that neighborhoods in the southwest are stopped more often, with the levels of poverty in Minneapolis.I could not figure out how to change the legend size, so I think that the darker the color, the higher the amount of poverty. There is a general north/south divide in poverty levels where the south is higher.__
 
 ```{r}
+sus_bias <- colorFactor("plasma",
+                        domain = mpls_all$poverty)
+
+leaflet(data = mpls_all) %>% 
+  addTiles() %>% 
+  addPolygons(stroke = FALSE, 
+              fillColor = ~sus_bias(poverty),
+             label = ~mpls_all$BDNAME,
+             fillOpacity = .7,
+             highlight = highlightOptions(weight = 4,
+                                          color = "black",
+                                          fillOpacity = 0.75,
+                                          bringToFront = FALSE)) %>% 
+  addLegend(pal = sus_bias, 
+            values = ~poverty, 
+            bins = 4,
+            opacity = 0.5, 
+            title = "Poverty Levels",
+            position = "bottomright")
 ```
   
 ## GitHub link
